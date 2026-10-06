@@ -10,10 +10,8 @@ class BillPreviewPage extends StatefulWidget {
 }
 
 class _BillPreviewPageState extends State<BillPreviewPage> {
-  final GlobalKey _receiptKey = GlobalKey(); // receipt capture ke liye
+  final GlobalKey _receiptKey = GlobalKey();
   bool _printing = false;
-
-  // (naam, qty, rate) - 100 alag-alag items (test ke liye), baad me API/DB se replace karna
   static const items = <(String, int, double)>[
     ('Rice 1kg', 1, 250.0),
     ('Wheat Flour 5kg', 4, 104.0),
@@ -121,7 +119,7 @@ class _BillPreviewPageState extends State<BillPreviewPage> {
   void initState() {
     super.initState();
     debugPrint('[PRINT] BillPreviewPage open hua');
-    PrinterService.logDeviceInfo(); // device info logcat/console me aayegi
+    PrinterService.logDeviceInfo();
   }
 
   Future<void> _onPrintPressed() async {
@@ -138,7 +136,7 @@ class _BillPreviewPageState extends State<BillPreviewPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: ok ? AppColors.success : AppColors.error,
-        content: Text(ok ? 'Print bhej diya gaya' : 'Print fail - console/logcat me [PRINT] ya POS_PRINT dekho'),
+        content: Text(ok ? 'Print request sent successfully' : 'Print failed - please check the console/logcat for [PRINT] or POS_PRINT logs')
       ),
     );
   }
@@ -188,7 +186,7 @@ class _BillPreviewPageState extends State<BillPreviewPage> {
         padding: const EdgeInsets.all(12),
         child: Center(
           child: RepaintBoundary(
-            key: _receiptKey, // isi widget ki image print hogi
+            key: _receiptKey,
             child: Container(
               constraints: const BoxConstraints(maxWidth: 400),
               padding: const EdgeInsets.all(10),

@@ -4,23 +4,16 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// Receipt ko image banakar Android (Kotlin) ko bhejta hai.
-/// Har step par debugPrint hai - Run/Debug console me "[PRINT]" search karo.
 class PrinterService {
   PrinterService._();
 
   static const MethodChannel _channel = MethodChannel('pos_printer');
 
-  /// Printer paper width in pixels (58mm = 384, 80mm = 576)
   static const int paperWidthPx = 384;
 
-  /// Capture ki normal quality (chhoti receipt ke liye)
   static const double _normalPixelRatio = 2.0;
 
-  /// Image ki max height (px). Isse lambi receipt me GPU limit cross nahi hoti.
   static const double _maxImageHeightPx = 4000;
-
-  /// Device ki info + printer related apps ka log (diagnose ke liye)
   static Future<void> logDeviceInfo() async {
     try {
       debugPrint('[PRINT] deviceInfo maang rahe hain...');
@@ -33,7 +26,6 @@ class PrinterService {
     }
   }
 
-  /// RepaintBoundary ko PNG bytes me convert karta hai
   static Future<Uint8List?> _capture(GlobalKey key) async {
     try {
       debugPrint('[PRINT] 1) receipt capture start');
@@ -43,9 +35,6 @@ class PrinterService {
         return null;
       }
       final boundary = ctx.findRenderObject() as RenderRepaintBoundary;
-
-      // Lambi receipt (jaise 100 items) me pixel ratio apne aap kam ho jata hai,
-      // chhoti receipt me normal 2.0 hi rahta hai.
       final logicalHeight = boundary.size.height;
       final ratio = (logicalHeight * _normalPixelRatio > _maxImageHeightPx)
           ? (_maxImageHeightPx / logicalHeight)
@@ -68,7 +57,6 @@ class PrinterService {
     }
   }
 
-  /// true = print command printer ko chala gaya, false = fail
   static Future<bool> printReceipt(GlobalKey receiptKey) async {
     final bytes = await _capture(receiptKey);
     if (bytes == null) return false;

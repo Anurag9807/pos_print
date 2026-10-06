@@ -14,6 +14,12 @@ class PrinterService {
   /// Printer paper width in pixels (58mm = 384, 80mm = 576)
   static const int paperWidthPx = 384;
 
+  /// Capture ki normal quality (chhoti receipt ke liye)
+  static const double _normalPixelRatio = 2.0;
+
+  /// Image ki max height (px). Isse lambi receipt me GPU limit cross nahi hoti.
+  static const double _maxImageHeightPx = 4000;
+
   /// Device ki info + printer related apps ka log (diagnose ke liye)
   static Future<void> logDeviceInfo() async {
     try {
@@ -37,7 +43,16 @@ class PrinterService {
         return null;
       }
       final boundary = ctx.findRenderObject() as RenderRepaintBoundary;
-      final image = await boundary.toImage(pixelRatio: 2.0);
+
+      // Lambi receipt (jaise 100 items) me pixel ratio apne aap kam ho jata hai,
+      // chhoti receipt me normal 2.0 hi rahta hai.
+      final logicalHeight = boundary.size.height;
+      final ratio = (logicalHeight * _normalPixelRatio > _maxImageHeightPx)
+          ? (_maxImageHeightPx / logicalHeight)
+          : _normalPixelRatio;
+      debugPrint('[PRINT] receipt logical height: ${logicalHeight.toStringAsFixed(0)}, pixelRatio: ${ratio.toStringAsFixed(2)}');
+
+      final image = await boundary.toImage(pixelRatio: ratio);
       debugPrint('[PRINT] image size: ${image.width} x ${image.height}');
       final data = await image.toByteData(format: ui.ImageByteFormat.png);
       if (data == null) {
